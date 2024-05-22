@@ -26,7 +26,7 @@
               <td>{{ i.jurusan }}</td>
               <td>{{ i.ruangan }}</td>
               <td>
-                <button class="btn-kelas-edit">EDIT</button>
+                <button class="btn-kelas-edit" @click="editKelasModal(i)">EDIT</button>
                 <button class="btn-kelas-hapus" @click="deleteKelas(i)">HAPUS</button>
               </td>
             </tr>
@@ -37,19 +37,11 @@
 
     <!-- MODAL AREA -->
     <div class="modal" v-if="state.toggleModal === true">
-      <div
-        class="modal-body animate__animated animate__backInDown"
-        :class="{ animate__backOutUp: state.closeModal }"
-      >
+      <div class="modal-body animate__animated animate__backInDown" :class="{ animate__backOutUp: state.closeModal }">
         <form @submit.prevent="sendData">
           Tingkat/Kelas:<br />
-          <input
-            v-model="state.form.tingkat"
-            required
-            type="number"
-            class="form-modal"
-            placeholder="Masukkan Kelas/Tingkat..."
-          />
+          <input v-model="state.form.tingkat" required type="number" class="form-modal"
+            placeholder="Masukkan Kelas/Tingkat..." />
           <br />
           Jurusan: <br />
           <select v-model="state.form.jurusan" required class="form-modal">
@@ -60,13 +52,35 @@
           </select>
           <br />
           Ruangan: <br />
-          <input
-            v-model="state.form.ruangan"
-            required
-            type="number"
-            class="form-modal"
-            placeholder="Masukkan nomor ruangan..."
-          />
+          <input v-model="state.form.ruangan" required type="number" class="form-modal"
+            placeholder="Masukkan nomor ruangan..." />
+          <br />
+          <input type="submit" class="form-submit" value="Submit" />
+        </form>
+        <button class="btn-tutup-modal" @click="closeModal">Tutup</button>
+      </div>
+    </div>
+
+
+
+    <div class="modal" v-if="state.toggleEditModal === true">
+      <div class="modal-body animate__animated animate__backInDown" :class="{ animate__backOutUp: state.closeModal }">
+        <form @submit.prevent="saveEditData">
+          Tingkat/Kelas:<br />
+          <input v-model="state.formEdit.tingkat" required type="number" class="form-modal"
+            placeholder="Masukkan Kelas/Tingkat..." />
+          <br />
+          Jurusan: <br />
+          <select v-model="state.formEdit.jurusan" required class="form-modal">
+            <option value="-">-</option>
+            <option value="Rekayasa Perangkat Lunak">Rekayasa Perangkat Lunak</option>
+            <option value="Teknik Komputer Jaringan">Teknik Komputer Jaringan</option>
+            <option value="Pengembangan Game">Pengembangan Game</option>
+          </select>
+          <br />
+          Ruangan: <br />
+          <input v-model="state.formEdit.ruangan" required type="number" class="form-modal"
+            placeholder="Masukkan nomor ruangan..." />
           <br />
           <input type="submit" class="form-submit" value="Submit" />
         </form>
@@ -86,11 +100,13 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  getDoc,
   onSnapshot,
   collection,
   Timestamp,
   query,
   orderBy,
+  updateDoc,
 } from "firebase/firestore";
 import swal from "sweetalert";
 
@@ -100,7 +116,9 @@ export default {
     const state = reactive({
       filter: "",
       toggleModal: false,
+      toggleEditModal: false,
       closeModal: false,
+      formEdit: {},
       form: {
         time: Timestamp.now().toMillis(),
       },
@@ -111,6 +129,7 @@ export default {
       state.closeModal = true;
       console.log({ closeOn: state.closeModal });
       setTimeout(() => {
+        state.toggleEditModal = false
         state.toggleModal = false;
         state.closeModal = false;
         console.log({ closeOn: state.closeModal });
@@ -146,6 +165,33 @@ export default {
         console.log(error);
       }
     };
+
+    const editKelasModal = async (i) => {
+      state.toggleEditModal = true
+      const get = await getDoc(doc(db, 'kelas', i.id))
+      const data = {
+        id: get.id,
+        tingkat: get.data().tingkat,
+        jurusan: get.data().jurusan,
+        ruangan: get.data().ruangan
+      }
+      state.formEdit = data
+    }
+
+    const saveEditData = async () => {
+      try {
+        const get = doc(db, 'kelas', state.formEdit.id)
+        await updateDoc(get, state.formEdit)
+        swal({
+          icon: 'success',
+          button: false,
+          timer: 900
+        })
+        closeModal()
+      } catch (error) {
+        console.log(error)
+      }
+    }
 
     const deleteKelas = async (i) => {
       try {
@@ -186,6 +232,8 @@ export default {
       sendData,
       deleteKelas,
       filterData,
+      editKelasModal,
+      saveEditData
     };
   },
 };
