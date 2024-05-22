@@ -1,0 +1,37 @@
+*{
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.title{
+    margin: 10px 0 10px 0;
+}
+
+.menu{
+    display: flex;
+    justify-content: space-around;
+    font-size: 1.2rem;
+    padding: 10px;
+}
+
+.menu .menu-list{
+    padding: 10px;
+    font-weight: bolder;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.menu .menu-list:hover{
+    transform: scale(1.1);
+    background-color: black;
+    color: white;
+    border-radius: 10px;
+}
+
+.selected{
+    background-color: black;
+    color: white;
+    border-radius: 10px
+}
