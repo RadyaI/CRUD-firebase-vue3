@@ -13,14 +13,17 @@
 
     <kelasView v-if="currentDisplay === 'kelas'" />
     <siswa v-if="currentDisplay === 'siswa'" />
+    <sarpra v-if="currentDisplay === 'sarpra'" />
 
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+
 import kelasView from '@/components/kelas.vue'
 import siswa from '@/components/siswa.vue'
+import sarpra from '@/components/sarpra.vue'
 
-let currentDisplay = ref('siswa')
+let currentDisplay = ref('sarpra')
 </script>
