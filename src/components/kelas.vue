@@ -52,7 +52,7 @@
           </select>
           <br />
           Ruangan: <br />
-          <input v-model="state.form.ruangan" required type="number" class="form-modal"
+          <input v-model="state.form.ruangan" required type="text" class="form-modal"
             placeholder="Masukkan nomor ruangan..." />
           <br />
           <input type="submit" class="form-submit" value="Submit" />
@@ -79,7 +79,7 @@
           </select>
           <br />
           Ruangan: <br />
-          <input v-model="state.formEdit.ruangan" required type="number" class="form-modal"
+          <input v-model="state.formEdit.ruangan" required type="text" class="form-modal"
             placeholder="Masukkan nomor ruangan..." />
           <br />
           <input type="submit" class="form-submit" value="Submit" />
@@ -154,7 +154,7 @@ export default {
 
     const getData = () => {
       try {
-        onSnapshot(query(collection(db, "kelas"), orderBy("time", "asc")), (snapshot) => {
+        onSnapshot(query(collection(db, "kelas"), orderBy("tingkat", "asc")), (snapshot) => {
           state.kelasData = [];
           snapshot.forEach((data) => {
             const kelas = data.data();
@@ -239,6 +239,6 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 @import url("../assets/kelas.css");
 </style>
