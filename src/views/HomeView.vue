@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Navbar/>
     <h1 align="center" class="title">Selamat Datang di Management Sekolah</h1>
     <div class="menu">
       <div @click="currentDisplay = 'siswa'" class="menu-list" :class="{ 'selected': currentDisplay === 'siswa' }">Siswa
@@ -24,6 +25,7 @@ import { ref } from 'vue'
 import kelasView from '@/components/kelas.vue'
 import siswa from '@/components/siswa.vue'
 import sarpra from '@/components/sarpra.vue'
+import Navbar from '@/components/navbar.vue';
 
 let currentDisplay = ref('sarpra')
 </script>

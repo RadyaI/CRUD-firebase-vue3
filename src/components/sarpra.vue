@@ -21,7 +21,7 @@
               <td>{{ i.fasilitas }}</td>
               <td>{{ i.jumlah }}</td>
               <td>Rp.{{ i.harga }}</td>
-              <td><img :src="i.foto_url" :alt="i.fasilitas" width="100" height="120"></td>
+              <td><img :src="i.foto_url" :alt="i.fasilitas" width="100" height="120" loading="lazy"></td>
               <td>
                 <button class="btn-kelas-edit" @click="getSarpraEdit(i)">EDIT</button>
                 <button class="btn-kelas-hapus" @click="deleteSarpra(i)">HAPUS</button>
