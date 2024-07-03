@@ -2,7 +2,7 @@
     <div>
         <div class="table-container">
             <div class="wrapper">
-                <button @click="state.toggleModal = true">Tambah</button>
+                <button @click="state.toggleModal = true" class="btn-kelas-tambah">Tambah</button>
                 <table>
                     <tr>
                         <th>No</th>
@@ -16,8 +16,8 @@
                         <td>{{ i.nama }}</td>
                         <td>{{ i.kelas }}</td>
                         <td>
-                            <button class="btn-kelas-edit">Edit</button>
-                            <button class="btn-kelas-hapus">Delete</button>
+                            <button class="btn-kelas-edit" @click="getEditData(i.id)">Edit</button>
+                            <button class="btn-kelas-hapus" @click="deleteData(i.id)">Delete</button>
                         </td>
                     </tr>
                 </table>
@@ -45,6 +45,26 @@
                 <div class="btn-tutup-modal" @click="closeModal">Tutup</div>
             </div>
         </div>
+
+        <div class="modal" v-if="state.toggleModalEdit">
+            <div class="modal-body animate__animated animate__bounceIn"
+                :class="{ 'animate__bounceOut': state.onCloseModal }">
+                <form @submit.prevent="saveEdit">
+                    Nama: <br>
+                    <input type="text" class="form-modal" v-model="state.formEdit.nama"> <br>
+
+                    Kelas: <br>
+                    <select class="form-modal" v-model="state.formEdit.kelas">
+                        <option value="-">-</option>
+                        <option v-for="(i, no) in state.kelasData" :key="no" :value="i.ruangan">{{ i.ruangan }}</option>
+                    </select>
+
+                    <input type="submit" class="form-submit">
+                </form>
+                <button class="btn-tutup-modal" @click="closeModal">Tutup</button>
+            </div>
+        </div>
+
         <!-- MODAL AREA -->
 
     </div>
@@ -55,7 +75,7 @@ import { onMounted, reactive } from 'vue';
 import 'animate.css'
 
 import { db } from '@/firebase'
-import { Timestamp, addDoc, collection, getDocs, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { Timestamp, addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 import swal from 'sweetalert';
 
 
@@ -64,12 +84,14 @@ export default {
     setup() {
         const state = reactive({
             toggleModal: false,
+            toggleModalEdit: false,
             onCloseModal: false,
             kelasData: [],
             memberData: [],
             form: {
                 time: Timestamp.now().toMillis()
             },
+            formEdit: {}
         })
 
         async function getKelas() {
@@ -91,6 +113,15 @@ export default {
                 })
             } catch (error) {
                 console.log(error)
+            }
+        }
+
+        async function getEditData(i) {
+            state.toggleModalEdit = true
+            const data = await getDoc(doc(db, 'member_perpustakaan', i))
+            state.formEdit = {
+                ...data.data(),
+                id: data.id
             }
         }
 
@@ -128,24 +159,76 @@ export default {
             }
         }
 
+        async function saveEdit() {
+            const alert = await swal({
+                icon: 'warning',
+                title: 'Sudah yakin?',
+                dangerMode: true,
+                buttons: ['Belum', 'Sudah']
+            })
+
+            if (alert) {
+                try {
+                    await updateDoc(doc(db, 'member_perpustakaan', state.formEdit.id), state.formEdit)
+                    swal({
+                        icon: 'success',
+                        title: 'Berhasil ubah data',
+                        button: 'Tutup'
+                    }).then(
+                        (tutup) => {
+                            if (tutup) {
+                                closeModal()
+                            }
+                        }
+                    )
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+        }
+
+        async function deleteData(i) {
+            const alert = await swal({
+                icon: 'warning',
+                title: 'Ingin hapus data?',
+                dangerMode: true,
+                buttons: ['Tidak','Hapus']
+            })
+
+            if(alert){
+                const data = await doc(db, 'member_perpustakaan', i)
+                deleteDoc(data)
+                swal({
+                    icon: 'success',
+                    title: false,
+                    button: false,
+                    timer: 1200
+                })
+            }
+        }
+
         function closeModal() {
             state.onCloseModal = true
             setTimeout(() => {
                 state.onCloseModal = false
                 state.toggleModal = false
+                state.toggleModalEdit = false
             }, 1200);
         }
 
         onMounted(() => {
-            getKelas(),
-                getMemberData()
+            getKelas()
+            getMemberData()
         })
 
         return {
             state,
             closeModal,
             getKelas,
-            sendData
+            getEditData,
+            sendData,
+            saveEdit,
+            deleteData,
         }
     }
 }

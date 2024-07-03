@@ -74,8 +74,8 @@ export default {
     transform: scale(1.1);
 }
 
-.nav-select {
+/* .nav-select {
     border: 1px solid black;
     border-radius: 10px;
-}
+} */
 </style>
