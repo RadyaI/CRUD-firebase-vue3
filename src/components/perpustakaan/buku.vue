@@ -17,7 +17,7 @@
                         <td><img :src="i.foto" :alt="i.judul" width="100" height="120"></td>
                         <td>
                             <button class="btn-kelas-edit">Edit</button>
-                            <button class="btn-kelas-hapus">Delete</button>
+                            <button class="btn-kelas-hapus" @click="deleteBuku(i)">Delete</button>
                         </td>
                     </tr>
                 </table>
@@ -50,8 +50,8 @@
 
 <script>
 import { db, storage } from '@/firebase';
-import { Timestamp, addDoc, collection, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { Timestamp, addDoc, collection, deleteDoc, onSnapshot, orderBy, query, doc } from 'firebase/firestore';
+import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import swal from 'sweetalert';
 import 'animate.css'
 import { onMounted, reactive } from 'vue';
@@ -103,7 +103,8 @@ export default {
 
                     await addDoc(collection(db, 'buku'), {
                         ...state.form,
-                        foto: foto
+                        foto: foto,
+                        nama_foto: state.foto.name
                     })
 
                     swal({
@@ -111,18 +112,36 @@ export default {
                         title: 'Berhasil terupload',
                         button: false,
                         timer: 1200,
-                    }).then(
-                        (close) => {
-                            if (close) {
-                                state.form = {}
-                                closeModal()
-                            }
-                        }
-                    )
+                    })
+                    state.form = {}
+                    closeModal()
 
                 } catch (error) {
                     console.log(error)
                 }
+            }
+        }
+
+        async function deleteBuku(i) {
+            const alert = await swal({
+                icon: 'warning',
+                title: 'Mau dihapus?',
+                buttons: ['Engga', 'Iya']
+            })
+
+            if (alert) {
+                const targetDoc = doc(db, 'buku', i.id)
+                const targetStorage = ref(storage, `buku/${i.nama_foto}`)
+
+                await deleteObject(targetStorage)
+
+                await deleteDoc(targetDoc)
+                swal({
+                    icon: 'success',
+                    button: false,
+                    title: false,
+                    timer: 1200
+                })
             }
         }
 
@@ -144,6 +163,7 @@ export default {
             closeModal,
             getBuku,
             sendData,
+            deleteBuku
         }
 
     }
