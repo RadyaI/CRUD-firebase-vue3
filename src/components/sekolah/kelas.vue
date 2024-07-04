@@ -240,5 +240,5 @@ export default {
 </script>
 
 <style>
-@import url("../assets/kelas.css");
+@import url("../../assets/kelas.css");
 </style>

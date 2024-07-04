@@ -2,7 +2,10 @@
     <div>
         <div class="table-container">
             <div class="wrapper">
-                <button @click="state.toggleModal = true" class="btn-kelas-tambah">Tambah</button>
+                <div class="row">
+                    <button @click="state.toggleModal = true" class="btn-kelas-tambah">Tambah</button>
+                    <input type="text" class="filter-form" placeholder="Cari member..." v-model="state.search">
+                </div>
                 <table>
                     <tr>
                         <th>No</th>
@@ -11,7 +14,7 @@
                         <th>Action</th>
                     </tr>
 
-                    <tr v-for="(i, no) in state.memberData" :key="no">
+                    <tr v-for="(i, no) in searching" :key="no">
                         <td>{{ no + 1 }}</td>
                         <td>{{ i.nama }}</td>
                         <td>{{ i.kelas }}</td>
@@ -71,7 +74,7 @@
 </template>
 
 <script>
-import { onMounted, reactive } from 'vue';
+import { computed, onMounted, reactive } from 'vue';
 import 'animate.css'
 
 import { db } from '@/firebase'
@@ -91,7 +94,8 @@ export default {
             form: {
                 time: Timestamp.now().toMillis()
             },
-            formEdit: {}
+            formEdit: {},
+            search: '',
         })
 
         async function getKelas() {
@@ -109,6 +113,7 @@ export default {
                     snapshot.forEach((member) => {
                         const data = member.data()
                         state.memberData.push({ ...data, id: member.id })
+                        console.log(state.memberData)
                     })
                 })
             } catch (error) {
@@ -192,10 +197,10 @@ export default {
                 icon: 'warning',
                 title: 'Ingin hapus data?',
                 dangerMode: true,
-                buttons: ['Tidak','Hapus']
+                buttons: ['Tidak', 'Hapus']
             })
 
-            if(alert){
+            if (alert) {
                 const data = await doc(db, 'member_perpustakaan', i)
                 deleteDoc(data)
                 swal({
@@ -216,6 +221,14 @@ export default {
             }, 1200);
         }
 
+        const searching = computed(() => {
+            let filtered = state.memberData
+            if(!state.search == ''){
+                filtered = filtered.filter(i => i.nama.toLowerCase().toString().includes(state.search.toLowerCase()))
+            }
+            return filtered
+        })
+
         onMounted(() => {
             getKelas()
             getMemberData()
@@ -223,6 +236,7 @@ export default {
 
         return {
             state,
+            searching,
             closeModal,
             getKelas,
             getEditData,

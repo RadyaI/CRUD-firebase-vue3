@@ -22,9 +22,9 @@
 <script setup>
 import { ref } from 'vue'
 
-import kelasView from '@/components/kelas.vue'
-import siswa from '@/components/siswa.vue'
-import sarpra from '@/components/sarpra.vue'
+import kelasView from '@/components/sekolah/kelas.vue'
+import siswa from '@/components/sekolah/siswa.vue'
+import sarpra from '@/components/sekolah/sarpra.vue'
 import Navbar from '@/components/navbar.vue';
 
 let currentDisplay = ref('sarpra')
